@@ -26,6 +26,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build Windows EXE via PyInstaller
+        # Windows 路径分隔符使用分号 (;)
         run: |
           pyinstaller --noconfirm --onefile --windowed --add-data "app.py;." --copy-metadata streamlit --name EchoApp run.py
 
@@ -36,10 +37,11 @@ jobs:
           path: dist/EchoApp.exe
 
   # ==============================
-  # 2. 编译 macOS DMG
+  # 2. 编译 macOS DMG (适配 Intel 芯片)
   # ==============================
   build-macos:
-    runs-on: macos-latest
+    # 【关键修改 1】将 macos-latest 改为 macos-13，强制使用 Intel (x86_64) 架构的运行环境
+    runs-on: macos-13 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -47,7 +49,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install Dependencies
         run: |
@@ -55,8 +57,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build macOS APP via PyInstaller
+        # 【关键修改 2】添加 --target-arch x86_64，确保打包为 Intel 架构
         run: |
-          pyinstaller --noconfirm --windowed --add-data "app.py:." --copy-metadata streamlit --name EchoApp run.py
+          pyinstaller --noconfirm --windowed --target-arch x86_64 --add-data "app.py:." --copy-metadata streamlit --name EchoApp run.py
 
       - name: Install create-dmg
         run: brew install create-dmg
@@ -75,5 +78,6 @@ jobs:
       - name: Upload DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macOS-EchoApp-DMG
+          # 修改了产物名称，方便区分
+          name: macOS-Intel-EchoApp-DMG 
           path: EchoApp.dmg
