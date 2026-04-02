@@ -36,10 +36,10 @@ jobs:
           path: dist/EchoApp.exe
 
   # ==============================
-  # 2. 编译 macOS DMG (使用原生的 macOS-12 Intel 服务器)
+  # 2. 编译 macOS DMG 
   # ==============================
   build-macos:
-    runs-on: macos-12  # 【关键修改】：换成纯正的 Intel 服务器
+    runs-on: macos-12  
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -55,12 +55,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build macOS APP via PyInstaller
-        # 因为跑在 Intel 机器上，打包出来的自然就是 Intel 版本
+       
         run: |
           pyinstaller --noconfirm --windowed --add-data "app.py:." --copy-metadata streamlit --name EchoApp run.py
 
       - name: Install create-dmg
-        # 加上 || true 防止因为服务器已经预装了此工具而报错中断
+       
         run: brew install create-dmg || true 
 
       - name: Package APP to DMG
